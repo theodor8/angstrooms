@@ -7,6 +7,12 @@ def getHtml(url):
     htmlString = BeautifulSoup(htmlDoc.content, features="html.parser")
     return htmlString
 
+def getBookings(html):
+    objects = html.find_all('tr', {'class' : 'rr clickable2'})
+    bookings = [ x.get_text() for x in objects ]
+    return bookings
 
-html = getHtml("https://cloud.timeedit.net/uu/web/schema/ri1X300ZZ9005QQQ0fZ67o6Y00yQ5YcfYQ0f7Y662v5QX109Y7ZZ0_hapQjxxy_ncdlllyrxwbnaxdb.html")
-print(html.prettify("utf-8"))
+
+html = getHtml("https://cloud.timeedit.net/uu/web/schema/ri1XZ0g78560Y7QQ8YZ985QY0yy500Q6c5a60Q560f54nZh8xlb6dp_xllybaxw_nrxdj.html")
+bookings = getBookings(html)
+print(bookings[2])
