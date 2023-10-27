@@ -5,7 +5,7 @@ def getSoup(url):
     r = requests.get(url)
     return BeautifulSoup(r.content, "html.parser")
 
-def getAllBookings(soup):
+def getAllBookings(soup): # tar text från soup och returnerar alla rader på sidan i form av en lista(bokningarna)
     table = soup.find('table', {'class' : 'restable'})
     rows = table.find_all('tr')
     rows = rows[2:]
@@ -17,9 +17,11 @@ def formatTime(time): # '17:30' --> 1730
     return int(time[:2] + time[3:])
 
 def formatRoom(room): # '10291,' --> 10291
-    return int(room[:-1])
+    return int(room[:-1]) # tar bort kommat och gör till heltal
 
-def formatBooking(booking):
+
+# ['10:15', '-', '12:00', 'Energieffektivisering', 'i', 'byggnader', 'BI3', '101154,', 'Grupprum,', 'Ångström', 'Presentation', 'Annica', 'Nilsson', 'Karta']
+def formatBooking(booking):# formaterar en bokningslista
     start = formatTime(booking[0])
     end = formatTime(booking[2])
     rooms = []
@@ -43,6 +45,8 @@ def getDateBookings(date, bookings): # returnar alla bokningar för ett visst da
         if not add and date in booking:
             add = True
 
+    # gör flera bokningar om det finns fler rum
+    # [1300, 1400, [10210, 10221]] --> [1300, 1400, 10210], [1300, 1400, 10221]
     dateBookingsNew = []
     for booking in dateBookings:
         start = booking[0]
@@ -64,7 +68,7 @@ def getNextBookingTime(bookings, room, time): # returnerar tiden för nästa bok
 
 def getAvailableRooms(allRooms, bookings): # returnerar lediga rum
     bookedRooms = [booking[2] for booking in bookings] # bara rummen
-    availableRooms = [room for room in allRooms if room not in bookedRooms] # lediga rum på tiden
+    availableRooms = [room for room in allRooms if room not in bookedRooms] # lediga rum på tiden, varje rum om rummet inte är bokat
     return availableRooms
 
 def available(url, allRooms, date, time):
@@ -73,10 +77,13 @@ def available(url, allRooms, date, time):
     dateBookings = getDateBookings(date, allBookings)
     timeBookings = getTimeBookings(time, dateBookings)
     availableRooms = getAvailableRooms(allRooms, timeBookings)
+
+    # lägger till nästa bokningstid
     result = []
     for room in availableRooms:
         nextBookingTime = getNextBookingTime(dateBookings, room, time)
         result.append([room, nextBookingTime])
+        
     return result
 
  
